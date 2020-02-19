@@ -1,4 +1,5 @@
-import React from 'react';// Compose es una utilidad (de programación funcional)
+import React from 'react';
+// Compose es una utilidad (de programación funcional)
 // que permite aplicar múltiples potenciadores de store en serie
 import { compose } from 'redux';
 import { connect } from 'react-redux';
