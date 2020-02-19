@@ -12,6 +12,32 @@ import Spinner from '../layout/Spinner';
 class EditarSuscriptor extends Component {
 
   // Create refs instead of storing in the state
+  nombreInput = React.createRef();
+  apellidoInput = React.createRef();
+  codigoInput = React.createRef();
+  carreraInput = React.createRef();
+
+  // Edit the subscriber in the DB
+  editarSuscriptor = e => {
+    e.preventDefault();
+
+    // Create the object to update
+    const suscriptorActualizado = {
+      nombre: this.nombreInput.current.value,
+      apellido: this.apellidoInput.current.value,
+      codigo: this.codigoInput.current.value,
+      carrera: this.carreraInput.current.value
+    }
+
+    // Extract firestore and history from props
+    const { suscriptor, firestore, history } = this.props;
+
+    // Save in the DB with firestore
+    firestore.update({
+      collection: 'suscriptores',
+      doc: suscriptor.id
+    }, suscriptorActualizado).then(history.push('/suscriptores'));
+  }
 
   render() {
     const { suscriptor } = this.props;
@@ -34,7 +60,7 @@ class EditarSuscriptor extends Component {
           <div className="row justify-content-center">
             <div className="col-md-8 mt-5">
               <form
-                onSubmit={this.agregarSuscriptor}
+                onSubmit={this.editarSuscriptor}
               >
 
                 <div className="form-group">
@@ -45,7 +71,7 @@ class EditarSuscriptor extends Component {
                     name="nombre"
                     placeholder="Nombre del suscriptor"
                     required
-                    onChange={this.leerDato}
+                    ref={this.nombreInput}
                     defaultValue={suscriptor.nombre}
                   />
                 </div>
@@ -58,7 +84,7 @@ class EditarSuscriptor extends Component {
                     name="apellido"
                     placeholder="Apellido del suscriptor"
                     required
-                    onChange={this.leerDato}
+                    ref={this.apellidoInput}
                     defaultValue={suscriptor.apellido}
                   />
                 </div>
@@ -71,7 +97,7 @@ class EditarSuscriptor extends Component {
                     name="carrera"
                     placeholder="Carrera del suscriptor"
                     required
-                    onChange={this.leerDato}
+                    ref={this.carreraInput}
                     defaultValue={suscriptor.carrera}
                   />
                 </div>
@@ -84,7 +110,7 @@ class EditarSuscriptor extends Component {
                     name="codigo"
                     placeholder="Codigo del suscriptor"
                     required
-                    onChange={this.leerDato}
+                    ref={this.codigoInput}
                     defaultValue={suscriptor.codigo}
                   />
                 </div>
@@ -104,6 +130,9 @@ class EditarSuscriptor extends Component {
   }
 }
 
+EditarSuscriptor.propTypes = {
+  firestore: PropTypes.object.isRequired
+}
 
 export default compose(
   firestoreConnect( props => [
