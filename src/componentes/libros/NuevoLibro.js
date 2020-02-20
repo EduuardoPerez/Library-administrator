@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import { firestoreConnect } from 'react-redux-firebase';
+import PropTypes from 'prop-types';
 
 class NuevoLibro extends Component {
   state={
@@ -8,6 +10,32 @@ class NuevoLibro extends Component {
     editorial: '',
     existencia: ''
   }
+  
+  // Add a new book to the DB
+  agregarLibro = e => {
+    e.preventDefault();
+
+    // Take a copy from the state
+    const nuevoLibro = this.state;
+
+    // Add array of borrowed
+    nuevoLibro.prestados = []
+
+    // Extract firestore from props
+    const { firestore, history } = this.props;
+
+    // Save in the DB
+    firestore.add({ collection: 'libros' }, nuevoLibro)
+      .then(() => history.push('/'));
+  }
+
+  // Extract the input values and place them in the state
+  leerDato = e => {
+    this.setState({
+      [e.target.name]: e.target.value
+    })
+  }
+
   render() {
     return (
       <div className="row">
@@ -24,7 +52,9 @@ class NuevoLibro extends Component {
           </h2>
           <div className="row justify-content-center">
             <div className="col-md-8 mt-5">
-              <form>
+              <form
+                onSubmit={this.agregarLibro}
+              >
 
                 <div className="form-group">
                   <label>Título:</label>
@@ -66,7 +96,7 @@ class NuevoLibro extends Component {
                 </div>
 
                 <div className="form-group">
-                  <label>ISBN:</label>
+                  <label>Existencia:</label>
                   <input
                     type="number"
                     min="0"
@@ -90,4 +120,8 @@ class NuevoLibro extends Component {
   }
 }
 
-export default NuevoLibro;
+NuevoLibro.propTypes = {
+  firestore: PropTypes.object.isRequired
+}
+
+export default firestoreConnect()( NuevoLibro );
