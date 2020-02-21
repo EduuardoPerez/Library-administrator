@@ -14,9 +14,9 @@ const Suscriptores = ({ suscriptores, firestore }) => {
 
   if (!suscriptores) return <Spinner />
 
-  // Eliminar suscriptores
+  // Delete subscriber
   const eliminarSuscriptor = id => {
-    // Eliminar
+    // Delete
     firestore.delete({
       collection: 'suscriptores',
       doc: id
