@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { firebaseConnect } from 'react-redux-firebase';
+import PropTypes from 'prop-types';
 
 class Navbar extends Component {
 
@@ -21,7 +22,19 @@ class Navbar extends Component {
     }
   }
 
+  // Logout
+  cerrarSesion = () => {
+    const { firebase } = this.props;
+    firebase.logout();
+  }
+
   render() {
+
+    const { usuarioAutenticado } = this.state;
+
+    // Extract authenticantion data
+    const { auth } = this.props;
+
     return (
       <nav className="navbar navbar-expand-lg navbar-dark bg-primary mb-5">
         <nav className="navbar navbar-light">
@@ -34,6 +47,8 @@ class Navbar extends Component {
         </button>
   
         <div className="collapse navbar-collapse" id="navbarColor01">
+
+          { usuarioAutenticado ? (
           <ul className="navbar-nav mr-auto">
             <li className="nav-item">
               <Link to={'/suscriptores'} className="nav-link">
@@ -46,10 +61,34 @@ class Navbar extends Component {
               </Link>
             </li>
           </ul>
+          ) : null}
+
+          { usuarioAutenticado ? (
+            <ul className="navbar-nav ml-auto">
+              <li className="nav-item">
+                <a href="#!" className="nav-link">
+                  { auth.email }
+                </a>
+              </li>
+              <li className="nav-item">
+                <button
+                  type="submit"
+                  className="btn btn-danger"
+                  onClick={this.cerrarSesion}
+                >Cerrar sesión</button>
+              </li>
+            </ul>
+          ) : null}
+
         </div>
       </nav>
     );
   }
+}
+
+Navbar.propTypes = {
+  firebase: PropTypes.object.isRequired,
+  auth: PropTypes.object.isRequired
 }
 
 export default compose(
