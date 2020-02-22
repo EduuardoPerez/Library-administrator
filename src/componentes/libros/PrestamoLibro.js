@@ -6,6 +6,8 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Spinner from '../layout/Spinner';
 
+import FichaSuscriptor from '../suscriptores/FichaSuscriptor';
+
 class PrestamoLibro extends Component {
   state={
     busqueda: '',
@@ -46,6 +48,31 @@ class PrestamoLibro extends Component {
     })
   }
 
+  // Store student data to request the book
+  solitarPrestamo = () => {
+    const suscriptor = this.state.resultado;
+
+    // Application date
+    suscriptor.fecha_solicitud = new Date().toLocaleDateString();
+
+    // Get the book
+    const libroActualizado = this.props.libro;
+
+    // Add the subscriber to the book
+    libroActualizado.prestados.push(suscriptor);
+
+    // Get firestore & history from props
+    const { firestore, history, libro } = this.props;
+
+    // Save in DB
+    firestore.update({
+      collection: 'libros',
+      doc: libro.id
+    }, libroActualizado).then(history.push('/'));
+
+
+  }
+
   // Save code in the state
   leerDato = e => {
     this.setState({
@@ -60,6 +87,25 @@ class PrestamoLibro extends Component {
 
     // Show spinner
     if(!libro) return <Spinner />
+
+    // Extract the subscriber's information for display it
+    const { noResultados, resultado } = this.state;
+
+    let fichaAlumno, btnSolicitar;
+
+    if (resultado.nombre) {
+      fichaAlumno = <FichaSuscriptor
+                      alumno={resultado}
+                    />
+      btnSolicitar = <button 
+                       type="button"
+                       className="btn btn-primary btn-block"
+                       onClick={this.solitarPrestamo}
+                     >Solicitar prestamo</button>
+    } else {
+      fichaAlumno = null;
+      btnSolicitar = null;
+    }
     
     return (
       <div className="row">
@@ -78,6 +124,7 @@ class PrestamoLibro extends Component {
             <div className="col-md-8">
               <form
                 onSubmit={this.buscarAlumno}
+                className="mb-4"
               >
                 <legend className="color-primary text-center">
                   Buscar suscriptor por código
@@ -92,6 +139,9 @@ class PrestamoLibro extends Component {
                 </div>
                 <input type="submit" className="btn btn-success btn-block" value="Buscar alumno"/>
               </form>
+              {/* Show the student file and the button to request the loan */}
+              {fichaAlumno}
+              {btnSolicitar}
             </div>
           </div>
         </div>
