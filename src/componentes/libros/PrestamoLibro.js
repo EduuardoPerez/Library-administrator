@@ -89,7 +89,7 @@ class PrestamoLibro extends Component {
     if(!libro) return <Spinner />
 
     // Extract the subscriber's information for display it
-    const { noResultados, resultado } = this.state;
+    const { resultado } = this.state;
 
     let fichaAlumno, btnSolicitar;
 
