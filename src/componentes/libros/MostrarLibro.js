@@ -7,8 +7,24 @@ import PropTypes from 'prop-types';
 import Spinner from '../layout/Spinner';
 
 class MostrarLibro extends Component {
-  
-  state={}
+
+  devolverLibro = id => {
+    // Extract firestore
+    const { firestore } = this.props;
+
+    // Book copy
+    const libroActualizado = {...this.props.libro};
+
+    // Delete the subscribers that it's returning the book
+    const prestados = libroActualizado.prestados.filter(elemento => elemento.codigo !== id);
+    libroActualizado.prestados = prestados;
+
+    // Update in firebase
+    firestore.update({
+      collection: 'libros',
+      doc: libroActualizado.id
+    }, libroActualizado)
+  }
 
   render() {
 
