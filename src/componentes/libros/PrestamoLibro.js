@@ -8,10 +8,12 @@ import Spinner from '../layout/Spinner';
 
 import FichaSuscriptor from '../suscriptores/FichaSuscriptor';
 
+// Redux actions
+import { buscarUsuario } from '../../actions/buscarUsuarioActions';
+
 class PrestamoLibro extends Component {
   state={
     busqueda: '',
-    resultado: {},
     noResultados: false
   }
 
@@ -22,8 +24,8 @@ class PrestamoLibro extends Component {
     // Get the value to search
     const { busqueda } = this.state
 
-    // Extract firestore
-    const { firestore } = this.props;
+    // Extract firestore & buscarUsuario
+    const { firestore, buscarUsuario } = this.props;
 
     // Make the query
     const coleccion = firestore.collection('suscriptores');
@@ -33,15 +35,19 @@ class PrestamoLibro extends Component {
     consulta.then(resultado => {
       if (resultado.empty) {
         // No results
+        // Store in Redux an empty object
+        buscarUsuario({})
+        // Update the local state if there're results
         this.setState({
-          noResultados:true,
-          resultado: {}
+          noResultados:true
         })
       } else {
         // There are results
+        // Store result in Redux's state
         const datos = resultado.docs[0];
+        buscarUsuario(datos.data());
+        // Update the local state if there're results
         this.setState({
-          resultado: datos.data(),
           noResultados: false
         })
       }
@@ -89,13 +95,13 @@ class PrestamoLibro extends Component {
     if(!libro) return <Spinner />
 
     // Extract the subscriber's information for display it
-    const { resultado } = this.state;
+    const { usuario } = this.props;
 
     let fichaAlumno, btnSolicitar;
 
-    if (resultado.nombre) {
+    if (usuario.nombre) {
       fichaAlumno = <FichaSuscriptor
-                      alumno={resultado}
+                      alumno={usuario}
                     />
       btnSolicitar = <button 
                        type="button"
@@ -162,7 +168,8 @@ export default compose(
       doc: props.match.params.id
     }
   ]),
-  connect(( {firestore: { ordered }}, props ) => ({
-    libro: ordered.libro && ordered.libro[0]
-  }))
+  connect(( { firestore: { ordered }, usuario }, props ) => ({
+    libro: ordered.libro && ordered.libro[0],
+    usuario: usuario
+  }), { buscarUsuario })
 )(PrestamoLibro);
