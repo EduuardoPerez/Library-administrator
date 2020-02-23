@@ -56,27 +56,32 @@ class PrestamoLibro extends Component {
 
   // Store student data to request the book
   solitarPrestamo = () => {
-    const suscriptor = this.state.resultado;
+    const { usuario } = this.props;
 
     // Application date
-    suscriptor.fecha_solicitud = new Date().toLocaleDateString();
+    usuario.fecha_solicitud = new Date().toLocaleDateString();
 
-    // Get the book
-    const libroActualizado = this.props.libro;
+    // You cannot mute the props, take a copy and create a new array
+    let prestados = [];
+    prestados = [...this.props.libro.prestados, usuario];
 
-    // Add the subscriber to the book
-    libroActualizado.prestados.push(suscriptor);
+    // Copy the object and add the borrowed
+    const libro = {...this.props.libro};
+
+    // Delete previous borrowed
+    delete libro.prestados;
+
+    // Assign the borrowed
+    libro.prestados = prestados;
 
     // Get firestore & history from props
-    const { firestore, history, libro } = this.props;
+    const { firestore, history } = this.props;
 
     // Save in DB
     firestore.update({
       collection: 'libros',
       doc: libro.id
-    }, libroActualizado).then(history.push('/'));
-
-
+    }, libro).then(history.push('/'));
   }
 
   // Save code in the state
@@ -113,6 +118,18 @@ class PrestamoLibro extends Component {
       btnSolicitar = null;
     }
     
+    // Show error message
+    const { noResultados } = this.state;
+    let mensajeResultado = '';
+    
+    if(noResultados) {
+      mensajeResultado = <div className="alert alert-danger text-center font-weight-bold">
+                            No hay resultados para el código buscado
+                         </div>
+    } else {
+      mensajeResultado = null;
+    }
+
     return (
       <div className="row">
         <div className="col-12 mb-4">
@@ -145,9 +162,13 @@ class PrestamoLibro extends Component {
                 </div>
                 <input type="submit" className="btn btn-success btn-block" value="Buscar alumno"/>
               </form>
+
               {/* Show the student file and the button to request the loan */}
               {fichaAlumno}
               {btnSolicitar}
+
+              {/* Show a no results message */}
+              {mensajeResultado}
             </div>
           </div>
         </div>
